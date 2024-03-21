@@ -14,5 +14,5 @@ export enum Color {
 	BRIGHT_BLUE = '#32afff',
 	BRIGHT_MAGENTA = '#ad7fa8',
 	BRIGHT_CYAN = '#34e2e2',
-	BRIGHT_WHITE = '#ffffff'
+	BRIGHT_WHITE = '#ffffff',
 }

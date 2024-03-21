@@ -2,26 +2,25 @@ import { Color } from '../types/Color.ts';
 import { Font } from '../types/Font.ts';
 
 // OnMouse variables declared here because they have issues with the 'this' scope
-let imageData: ImageData | undefined
+let imageData: ImageData | undefined;
 
 export default class CanvasRenderer {
-	
-	Screen: number[]
-	Canvas: OffscreenCanvas
-	Context: OffscreenCanvasRenderingContext2D
-	RenderCanvas: HTMLCanvasElement
-	RenderContext: CanvasRenderingContext2D
-	StartingPosition: number[] | undefined = undefined
-	
+	Screen: number[];
+	Canvas: OffscreenCanvas;
+	Context: OffscreenCanvasRenderingContext2D;
+	RenderCanvas: HTMLCanvasElement;
+	RenderContext: CanvasRenderingContext2D;
+	StartingPosition: number[] | undefined = undefined;
+
 	constructor(canvas: HTMLCanvasElement) {
-		this.Screen = [window.outerWidth, window.outerHeight]
-		this.RenderCanvas = canvas
+		this.Screen = [window.outerWidth, window.outerHeight];
+		this.RenderCanvas = canvas;
 		this.RenderContext = this.RenderCanvas.getContext('2d') ?? new CanvasRenderingContext2D();
-		this.Canvas = new OffscreenCanvas(window.innerWidth, window.innerHeight)
+		this.Canvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
 		this.Context = this.Canvas.getContext('2d') ?? new OffscreenCanvasRenderingContext2D();
-		this.RenderCanvas.onmousedown = this.OnMouseDown
-		this.RenderCanvas.onmouseup = this.OnMouseUp
-		this.RenderCanvas.onmousemove = this.OnMouseMove
+		this.RenderCanvas.onmousedown = this.OnMouseDown;
+		this.RenderCanvas.onmouseup = this.OnMouseUp;
+		this.RenderCanvas.onmousemove = this.OnMouseMove;
 	}
 
 	/**
@@ -34,25 +33,31 @@ export default class CanvasRenderer {
 	 * @param maxWidth - Maximum width of the text in px
 	 * @constructor
 	 */
-	Text(text: string, location: number[], color: Color = Color.BRIGHT_WHITE, stroke: boolean = false, maxWidth?: number | undefined,) {
+	Text(
+		text: string,
+		location: number[],
+		color: Color = Color.BRIGHT_WHITE,
+		stroke: boolean = false,
+		maxWidth?: number | undefined,
+	) {
 		// Verify params
-		if (location.length != 2) throw new RangeError(`Length of 'location' must be 2, currently ${location.length}`)
-		
+		if (location.length != 2) throw new RangeError(`Length of 'location' must be 2, currently ${location.length}`);
+
 		// Conversion
-		const rLocation = this.GetScreenLocation(location)
-		
+		const rLocation = this.GetScreenLocation(location);
+
 		// Write to canvas
-		this.SetColor(color)
+		this.SetColor(color);
 		stroke
 			? this.Context.strokeText(text, rLocation[0], rLocation[1], maxWidth)
-			: this.Context.fillText(text, rLocation[0], rLocation[1], maxWidth)
-		
-		this.Render()
+			: this.Context.fillText(text, rLocation[0], rLocation[1], maxWidth);
+
+		this.Render();
 	}
 
 	/**
 	 * Draws a straight line
-	 * 
+	 *
 	 * @param from - Starting location [X,Y]
 	 * @param to - End Location [X,Y]
 	 * @param color - Color of the line
@@ -60,25 +65,25 @@ export default class CanvasRenderer {
 	 */
 	Line(from: number[], to: number[], color: Color = Color.BRIGHT_WHITE) {
 		// Verify params
-		if (from.length != 2) throw new RangeError(`Length of 'from' must be 2, currently ${from.length}`)
-		if (to.length != 2) throw new RangeError(`Length of 'to' must be 2, currently ${to.length}`)
-		
+		if (from.length != 2) throw new RangeError(`Length of 'from' must be 2, currently ${from.length}`);
+		if (to.length != 2) throw new RangeError(`Length of 'to' must be 2, currently ${to.length}`);
+
 		// Conversion
-		const rFrom = this.GetScreenLocation(from)
-		const rTo = this.GetScreenLocation(to)
-		
+		const rFrom = this.GetScreenLocation(from);
+		const rTo = this.GetScreenLocation(to);
+
 		// Write to canvas
-		this.SetColor(color)
-		this.Context.moveTo(rFrom[0], rFrom[1])
-		this.Context.lineTo(rTo[0], rTo[1])
-		this.Context.stroke()
-		
-		this.Render()
+		this.SetColor(color);
+		this.Context.moveTo(rFrom[0], rFrom[1]);
+		this.Context.lineTo(rTo[0], rTo[1]);
+		this.Context.stroke();
+
+		this.Render();
 	}
 
 	/**
 	 * Draws a circle
-	 * 
+	 *
 	 * @param center - Center of the circle
 	 * @param radius - Radius of the circle
 	 * @param color - Color of the circle
@@ -86,28 +91,45 @@ export default class CanvasRenderer {
 	 */
 	Circle(center: number[], radius: number, color: Color = Color.BRIGHT_WHITE) {
 		// Verify params
-		if (center.length != 2) throw new RangeError(`Length of 'center' must be 2, currently ${center.length}`)
-		
+		if (center.length != 2) throw new RangeError(`Length of 'center' must be 2, currently ${center.length}`);
+
 		// Conversion
-		const rCenter = this.GetScreenLocation(center)
-		
+		const rCenter = this.GetScreenLocation(center);
+
 		// Write to canvas
-		this.SetColor(color)
-		this.Context.beginPath()
-		this.Context.arc(rCenter[0], rCenter[1], radius, 0, 2 * Math.PI)
-		this.Context.stroke()
-		
-		this.Render()
+		this.SetColor(color);
+		this.Context.beginPath();
+		this.Context.arc(rCenter[0], rCenter[1], radius, 0, 2 * Math.PI);
+		this.Context.stroke();
+
+		this.Render();
+	}
+
+	Svg(image: string, location: number[]) {
+		// Verify params
+		if (location.length != 2) throw new RangeError(`Length of 'location' must be 2, currently ${location.length}`);
+
+		// Conversion
+		const rLocation = this.GetScreenLocation(location);
+
+		// Write to canvas
+		const img = new Image();
+		img.onload = () => {
+			this.Context.drawImage(img, rLocation[0], rLocation[1]);
+			this.Render();
+		};
+		img.crossOrigin = 'anonymous';
+		img.src = image;
 	}
 
 	/**
 	 * Zoom in the canvas
-	 * 
+	 *
 	 * @param level - Zoom multiplier
 	 * @constructor
 	 */
 	Zoom(level: number) {
-		this.Context.scale(level, level)
+		this.RenderContext.scale(level, level);
 	}
 
 	/**
@@ -117,59 +139,62 @@ export default class CanvasRenderer {
 	 * @constructor
 	 */
 	SetFont(font: Font) {
-		this.Context.font = font
+		this.Context.font = font;
+		this.Render();
 	}
-	
+
+	/**
+	 * Copy OffscreenCanvas to the screen
+	 *
+	 * @constructor
+	 */
 	Render() {
-		imageData = this.Context.getImageData(0, 0, window.innerWidth, window.innerHeight)
-		this.RenderContext.putImageData(imageData, 0, 0)
+		imageData = this.Context.getImageData(0, 0, window.innerWidth, window.innerHeight);
+		this.RenderContext.putImageData(imageData, 0, 0);
 	}
 
 	/**
 	 * Convert a position on a 1920x1080 grid to the correct place on the current resolution
-	 * 
+	 *
 	 * @param position - [X,Y] position
 	 * @constructor
 	 * @private
 	 */
 	private GetScreenLocation(position: number[]) {
 		// Verify params
-		if (position.length != 2) throw new RangeError(`Length of 'position' must be 2, currently ${position.length}`)
-		
-		return [
-			position[0] / 1920 * this.Screen[0],
-			position[1] / 1080 * this.Screen[1]
-		]
+		if (position.length != 2) throw new RangeError(`Length of 'position' must be 2, currently ${position.length}`);
+
+		return [(position[0] / 1920) * this.Screen[0], (position[1] / 1080) * this.Screen[1]];
 	}
 
 	/**
 	 * Set the drawing color
-	 * 
+	 *
 	 * @param color - Color enum
 	 * @constructor
 	 * @private
 	 */
 	private SetColor(color: Color) {
-		this.Context.fillStyle = color
-		this.Context.strokeStyle = color
+		this.Context.fillStyle = color;
+		this.Context.strokeStyle = color;
 	}
-	
+
 	private OnMouseDown(e: MouseEvent) {
-		this.StartingPosition = [e.x, e.y]
+		this.StartingPosition = [e.x, e.y];
 	}
-	
+
 	private OnMouseUp() {
-		this.StartingPosition = undefined
+		this.StartingPosition = undefined;
 	}
+
 	private OnMouseMove(e: MouseEvent) {
-		if (!this.StartingPosition) return
-		if (!imageData) return
-		
-		const canvas = e.target as HTMLCanvasElement
+		if (!this.StartingPosition) return;
+		if (!imageData) return;
+
+		const canvas = e.target as HTMLCanvasElement;
 		const context = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
-		
-		context.clearRect(0, 0, window.innerWidth, window.innerHeight)
-		context.putImageData(imageData, e.x,  e.y)
-		
+
+		context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+		context.putImageData(imageData, e.x, e.y);
 	}
 }

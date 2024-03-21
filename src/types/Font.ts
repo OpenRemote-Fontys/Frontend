@@ -16,5 +16,5 @@ export enum Font {
 	SERIF_50 = '50px serif',
 	SANS_SERIF_30 = '30px sans-serif',
 	SANS_SERIF_40 = '40px sans-serif',
-	SANS_SERIF_50 = '50px sans-serif'
+	SANS_SERIF_50 = '50px sans-serif',
 }
