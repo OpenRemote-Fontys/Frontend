@@ -1,0 +1,20 @@
+export enum Font {
+	ARIAL_30 = '30px arial',
+	ARIAL_40 = '40px arial',
+	ARIAL_50 = '50px arial',
+	VERDANA_30 = '30px verdana',
+	VERDANA_40 = '40px verdana',
+	VERDANA_50 = '50px verdana',
+	TIMES_NEW_ROMAN_30 = '30px times new roman',
+	TIMES_NEW_ROMAN_40 = '40px times new roman',
+	TIMES_NEW_ROMAN_50 = '50px times new roman',
+	COURIER_NEW_30 = '30px courier new',
+	COURIER_NEW_40 = '40px courier new',
+	COURIER_NEW_50 = '50px courier new',
+	SERIF_30 = '30px serif',
+	SERIF_40 = '40px serif',
+	SERIF_50 = '50px serif',
+	SANS_SERIF_30 = '30px sans-serif',
+	SANS_SERIF_40 = '40px sans-serif',
+	SANS_SERIF_50 = '50px sans-serif'
+}
