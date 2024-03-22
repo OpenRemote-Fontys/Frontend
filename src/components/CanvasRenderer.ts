@@ -89,7 +89,6 @@ export default class CanvasRenderer {
 	 * @param color - Color of the circle
 	 * @constructor
 	 */
-
 	Circle(center: number[], radius: number, color: Color = Color.BRIGHT_WHITE) {
 		// Verify params
 		if (center.length != 2) throw new RangeError(`Length of 'center' must be 2, currently ${center.length}`);
@@ -115,7 +114,6 @@ export default class CanvasRenderer {
 	 * @param color2 - Color of background
 	 * @constructor
 	 */
-
 	Gradient(start: number[],width: number, height: number, color1: Color = Color.BRIGHT_GREEN, color2: Color = Color.BLACK) {
 		// Verify params
 		if (start.length != 2) throw new RangeError(`Length of 'start' must be 2, currently ${start.length}`);
@@ -137,8 +135,16 @@ export default class CanvasRenderer {
 
 		this.Render();
 	}
-
-	Svg(image: string, location: number[]) {
+	
+	/**
+	 * Draws an SVG
+	 * 
+	 * @param image - Image URL
+	 * @param location - Top-left location [X,Y]
+	 * @param inverted - Invert the colors of the image
+	 * @constructor
+	 */
+	Svg(image: string, location: number[], inverted: boolean = false) {
 		// Verify params
 		if (location.length != 2) throw new RangeError(`Length of 'location' must be 2, currently ${location.length}`);
 
@@ -153,6 +159,7 @@ export default class CanvasRenderer {
 		};
 		img.crossOrigin = 'anonymous';
 		img.src = image;
+		if (inverted) img.style['filter'] = 'invert(1)';
 	}
 
 	/**
