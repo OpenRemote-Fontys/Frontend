@@ -105,6 +105,28 @@ export default class CanvasRenderer {
 		this.Render();
 	}
 
+	Gradient(start: number[],width: number, height: number, color: Color = Color.BRIGHT_GREEN) {
+		// Verify params
+		if (start.length != 2) throw new RangeError(`Length of 'from' must be 2, currently ${start.length}`);
+
+		// Conversion
+		const Start = this.GetScreenLocation(start);
+
+		// Calculate center of the rectangle
+		const centerX = Start[0] + width / 2;
+		const centerY = Start[1] + height / 2;
+
+		// Write to canvas
+		this.SetColor(color);
+		const grd = this.Context.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
+		grd.addColorStop(0, color);
+		grd.addColorStop(1,Color.BLACK);
+		this.Context.fillStyle = grd;
+		this.Context.fillRect(Start[0], Start[1], width, height);
+
+		this.Render();
+	}
+
 	Svg(image: string, location: number[]) {
 		// Verify params
 		if (location.length != 2) throw new RangeError(`Length of 'location' must be 2, currently ${location.length}`);
