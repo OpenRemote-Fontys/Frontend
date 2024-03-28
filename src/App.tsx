@@ -15,6 +15,7 @@ function App() {
 		map.Text('and suffering', [50, 90], Color.GREEN);
 		map.Line([60, 60], [100, 50], Color.CYAN);
 		map.Circle([180, 180], 10, Color.YELLOW);
+		map.Gradient([1000, 100],200, 200, Color.BRIGHT_GREEN, Color.BLACK)
 		map.Svg('https://upload.wikimedia.org/wikipedia/commons/f/f7/Bananas.svg', [150, 150]);
 	}, []);
 

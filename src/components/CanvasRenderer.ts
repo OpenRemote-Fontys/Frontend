@@ -89,6 +89,7 @@ export default class CanvasRenderer {
 	 * @param color - Color of the circle
 	 * @constructor
 	 */
+
 	Circle(center: number[], radius: number, color: Color = Color.BRIGHT_WHITE) {
 		// Verify params
 		if (center.length != 2) throw new RangeError(`Length of 'center' must be 2, currently ${center.length}`);
@@ -101,6 +102,38 @@ export default class CanvasRenderer {
 		this.Context.beginPath();
 		this.Context.arc(rCenter[0], rCenter[1], radius, 0, 2 * Math.PI);
 		this.Context.stroke();
+
+		this.Render();
+	}
+
+	/**
+	 *
+	 * @param start - Start corner of the box
+	 * @param width - Width of box
+	 * @param height - Height of box
+	 * @param color1 - Color of circle
+	 * @param color2 - Color of background
+	 * @constructor
+	 */
+
+	Gradient(start: number[],width: number, height: number, color1: Color = Color.BRIGHT_GREEN, color2: Color = Color.BLACK) {
+		// Verify params
+		if (start.length != 2) throw new RangeError(`Length of 'start' must be 2, currently ${start.length}`);
+
+		// Conversion
+		const Start = this.GetScreenLocation(start);
+
+		// Calculate center of the rectangle
+		const centerX = Start[0] + width / 2;
+		const centerY = Start[1] + height / 2;
+
+		// Write to canvas
+		this.SetColor(color1);
+		const grd = this.Context.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
+		grd.addColorStop(0, color1);
+		grd.addColorStop(1,color2);
+		this.Context.fillStyle = grd;
+		this.Context.fillRect(Start[0], Start[1], width, height);
 
 		this.Render();
 	}
