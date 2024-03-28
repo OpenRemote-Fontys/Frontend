@@ -1,8 +1,10 @@
 import { Color } from '../types/Color.ts';
 import { Font } from '../types/Font.ts';
 
-// OnMouse variables declared here because they have issues with the 'this' scope
+// OnMouse variables declared here because the object 'this' scope is unavailable in an On... event
 let imageData: ImageData | undefined;
+let lastImageDrawPosition: number[] = [0, 0]
+let startingPosition: number[] | undefined = undefined;
 
 export default class CanvasRenderer {
 	Screen: number[];
@@ -10,16 +12,16 @@ export default class CanvasRenderer {
 	Context: OffscreenCanvasRenderingContext2D;
 	RenderCanvas: HTMLCanvasElement;
 	RenderContext: CanvasRenderingContext2D;
-	StartingPosition: number[] | undefined = undefined;
 
 	constructor(canvas: HTMLCanvasElement) {
 		this.Screen = [window.outerWidth, window.outerHeight];
 		this.RenderCanvas = canvas;
 		this.RenderContext = this.RenderCanvas.getContext('2d') ?? new CanvasRenderingContext2D();
-		this.Canvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
+		this.Canvas = new OffscreenCanvas(window.innerWidth*4, window.innerHeight*4);
 		this.Context = this.Canvas.getContext('2d') ?? new OffscreenCanvasRenderingContext2D();
 		this.RenderCanvas.onmousedown = this.OnMouseDown;
 		this.RenderCanvas.onmouseup = this.OnMouseUp;
+		this.RenderCanvas.onmouseleave = this.OnMouseUp;
 		this.RenderCanvas.onmousemove = this.OnMouseMove;
 	}
 
@@ -106,32 +108,34 @@ export default class CanvasRenderer {
 	}
 
 	/**
-	 *
-	 * @param start - Start corner of the box
+	 * Draws a circular gradient
+	 * 
+	 * @param center - Start corner of the box
 	 * @param width - Width of box
 	 * @param height - Height of box
-	 * @param color1 - Color of circle
-	 * @param color2 - Color of background
+	 * @param startColor - Color of circle
+	 * @param endColor - Color of background
 	 * @constructor
 	 */
-	Gradient(start: number[],width: number, height: number, color1: Color = Color.BRIGHT_GREEN, color2: Color = Color.BLACK) {
+	Gradient(center: number[], width: number, height: number, startColor: Color = Color.BRIGHT_GREEN, endColor: Color = Color.BLACK) {
 		// Verify params
-		if (start.length != 2) throw new RangeError(`Length of 'start' must be 2, currently ${start.length}`);
+		if (center.length != 2) throw new RangeError(`Length of 'center' must be 2, currently ${center.length}`);
 
 		// Conversion
-		const Start = this.GetScreenLocation(start);
+		const Center = this.GetScreenLocation(center);
 
 		// Calculate center of the rectangle
-		const centerX = Start[0] + width / 2;
-		const centerY = Start[1] + height / 2;
+		const centerX = Center[0] + width / 2;
+		const centerY = Center[1] + height / 2;
 
 		// Write to canvas
-		this.SetColor(color1);
+		this.SetColor(startColor);
 		const grd = this.Context.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
-		grd.addColorStop(0, color1);
-		grd.addColorStop(1,color2);
+		grd.addColorStop(0, startColor);
+		grd.addColorStop(0.8,endColor);
+		grd.addColorStop(1,Color.TRANSPARENT);
 		this.Context.fillStyle = grd;
-		this.Context.fillRect(Start[0], Start[1], width, height);
+		this.Context.fillRect(Center[0], Center[1], width, height);
 
 		this.Render();
 	}
@@ -141,10 +145,9 @@ export default class CanvasRenderer {
 	 * 
 	 * @param image - Image URL
 	 * @param location - Top-left location [X,Y]
-	 * @param inverted - Invert the colors of the image
 	 * @constructor
 	 */
-	Svg(image: string, location: number[], inverted: boolean = false) {
+	Svg(image: string, location: number[]) {
 		// Verify params
 		if (location.length != 2) throw new RangeError(`Length of 'location' must be 2, currently ${location.length}`);
 
@@ -159,7 +162,6 @@ export default class CanvasRenderer {
 		};
 		img.crossOrigin = 'anonymous';
 		img.src = image;
-		if (inverted) img.style['filter'] = 'invert(1)';
 	}
 
 	/**
@@ -169,6 +171,7 @@ export default class CanvasRenderer {
 	 * @constructor
 	 */
 	Zoom(level: number) {
+		this.Context.scale(level, level);
 		this.RenderContext.scale(level, level);
 	}
 
@@ -189,7 +192,7 @@ export default class CanvasRenderer {
 	 * @constructor
 	 */
 	Render() {
-		imageData = this.Context.getImageData(0, 0, window.innerWidth, window.innerHeight);
+		imageData = this.Context.getImageData(0, 0, window.innerWidth*4, window.innerHeight*4);
 		this.RenderContext.putImageData(imageData, 0, 0);
 	}
 
@@ -220,21 +223,28 @@ export default class CanvasRenderer {
 	}
 
 	private OnMouseDown(e: MouseEvent) {
-		this.StartingPosition = [e.x, e.y];
+		startingPosition = [e.x, e.y];
 	}
 
 	private OnMouseUp() {
-		this.StartingPosition = undefined;
+		startingPosition = undefined;
 	}
 
 	private OnMouseMove(e: MouseEvent) {
-		if (!this.StartingPosition) return;
+		if (!startingPosition) return;
 		if (!imageData) return;
 
 		const canvas = e.target as HTMLCanvasElement;
 		const context = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
 
+		lastImageDrawPosition = [
+			(lastImageDrawPosition[0]) + (e.x - startingPosition[0]),
+			(lastImageDrawPosition[1]) + (e.y - startingPosition[1])
+		]
+		startingPosition = [e.x, e.y]
+		
+		
 		context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-		context.putImageData(imageData, e.x, e.y);
+		context.putImageData(imageData, lastImageDrawPosition[0], lastImageDrawPosition[1]);
 	}
 }

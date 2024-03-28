@@ -15,4 +15,5 @@ export enum Color {
 	BRIGHT_MAGENTA = '#ad7fa8',
 	BRIGHT_CYAN = '#34e2e2',
 	BRIGHT_WHITE = '#ffffff',
+	TRANSPARENT = '#ffffff00'
 }
