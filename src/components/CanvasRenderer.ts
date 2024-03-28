@@ -3,7 +3,7 @@ import { Font } from '../types/Font.ts';
 
 // OnMouse variables declared here because the object 'this' scope is unavailable in an On... event
 let imageData: ImageData | undefined;
-let lastImageDrawPosition: number[] = [0, 0]
+let lastImageDrawPosition: number[] = [0, 0];
 let startingPosition: number[] | undefined = undefined;
 
 export default class CanvasRenderer {
@@ -17,7 +17,7 @@ export default class CanvasRenderer {
 		this.Screen = [window.outerWidth, window.outerHeight];
 		this.RenderCanvas = canvas;
 		this.RenderContext = this.RenderCanvas.getContext('2d') ?? new CanvasRenderingContext2D();
-		this.Canvas = new OffscreenCanvas(window.innerWidth*4, window.innerHeight*4);
+		this.Canvas = new OffscreenCanvas(window.innerWidth * 4, window.innerHeight * 4);
 		this.Context = this.Canvas.getContext('2d') ?? new OffscreenCanvasRenderingContext2D();
 		this.RenderCanvas.onmousedown = this.OnMouseDown;
 		this.RenderCanvas.onmouseup = this.OnMouseUp;
@@ -109,7 +109,7 @@ export default class CanvasRenderer {
 
 	/**
 	 * Draws a circular gradient
-	 * 
+	 *
 	 * @param center - Start corner of the box
 	 * @param width - Width of box
 	 * @param height - Height of box
@@ -117,7 +117,13 @@ export default class CanvasRenderer {
 	 * @param endColor - Color of background
 	 * @constructor
 	 */
-	Gradient(center: number[], width: number, height: number, startColor: Color = Color.BRIGHT_GREEN, endColor: Color = Color.BLACK) {
+	Gradient(
+		center: number[],
+		width: number,
+		height: number,
+		startColor: Color = Color.BRIGHT_GREEN,
+		endColor: Color = Color.BLACK,
+	) {
 		// Verify params
 		if (center.length != 2) throw new RangeError(`Length of 'center' must be 2, currently ${center.length}`);
 
@@ -132,17 +138,17 @@ export default class CanvasRenderer {
 		this.SetColor(startColor);
 		const grd = this.Context.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
 		grd.addColorStop(0, startColor);
-		grd.addColorStop(0.8,endColor);
-		grd.addColorStop(1,Color.TRANSPARENT);
+		grd.addColorStop(0.8, endColor);
+		grd.addColorStop(1, Color.TRANSPARENT);
 		this.Context.fillStyle = grd;
 		this.Context.fillRect(Center[0], Center[1], width, height);
 
 		this.Render();
 	}
-	
+
 	/**
 	 * Draws an SVG
-	 * 
+	 *
 	 * @param image - Image URL
 	 * @param location - Top-left location [X,Y]
 	 * @constructor
@@ -192,7 +198,7 @@ export default class CanvasRenderer {
 	 * @constructor
 	 */
 	Render() {
-		imageData = this.Context.getImageData(0, 0, window.innerWidth*4, window.innerHeight*4);
+		imageData = this.Context.getImageData(0, 0, window.innerWidth * 4, window.innerHeight * 4);
 		this.RenderContext.putImageData(imageData, 0, 0);
 	}
 
@@ -238,12 +244,11 @@ export default class CanvasRenderer {
 		const context = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
 
 		lastImageDrawPosition = [
-			(lastImageDrawPosition[0]) + (e.x - startingPosition[0]),
-			(lastImageDrawPosition[1]) + (e.y - startingPosition[1])
-		]
-		startingPosition = [e.x, e.y]
-		
-		
+			lastImageDrawPosition[0] + (e.x - startingPosition[0]),
+			lastImageDrawPosition[1] + (e.y - startingPosition[1]),
+		];
+		startingPosition = [e.x, e.y];
+
 		context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 		context.putImageData(imageData, lastImageDrawPosition[0], lastImageDrawPosition[1]);
 	}
