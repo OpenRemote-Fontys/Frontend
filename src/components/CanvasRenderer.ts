@@ -1,8 +1,11 @@
 import { Color } from '../types/Color.ts';
 import { Font } from '../types/Font.ts';
+import Sensor from '../types/Sensor.ts';
+import simpleheat from 'simpleheat';
 
 // OnMouse variables declared here because the object 'this' scope is unavailable in an On... event
 let imageData: ImageData | undefined;
+let heatmapImageData: ImageData | undefined;
 let lastImageDrawPosition: number[] = [0, 0];
 let startingPosition: number[] | undefined = undefined;
 
@@ -12,11 +15,15 @@ export default class CanvasRenderer {
 	Context: OffscreenCanvasRenderingContext2D;
 	RenderCanvas: HTMLCanvasElement;
 	RenderContext: CanvasRenderingContext2D;
+	HeatmapCanvas: HTMLCanvasElement;
+	HeatmapContext: CanvasRenderingContext2D;
 
-	constructor(canvas: HTMLCanvasElement) {
+	constructor(canvas: HTMLCanvasElement, heatmapCanvas: HTMLCanvasElement) {
 		this.Screen = [window.outerWidth, window.outerHeight];
 		this.RenderCanvas = canvas;
 		this.RenderContext = this.RenderCanvas.getContext('2d') ?? new CanvasRenderingContext2D();
+		this.HeatmapCanvas = heatmapCanvas
+		this.HeatmapContext = this.HeatmapCanvas.getContext('2d') ?? new CanvasRenderingContext2D();
 		this.Canvas = new OffscreenCanvas(window.innerWidth * 4, window.innerHeight * 4);
 		this.Context = this.Canvas.getContext('2d') ?? new OffscreenCanvasRenderingContext2D();
 		this.RenderCanvas.onmousedown = this.OnMouseDown;
@@ -147,6 +154,24 @@ export default class CanvasRenderer {
 	}
 
 	/**
+	 * Creates a heatmap from data points
+	 *
+	 * @param data - Data points
+	 * @constructor
+	 */
+	Heatmap(data: Sensor[]) {
+		const points = data.map((sensor) => {
+			const screenLocation = this.GetScreenLocation(sensor.location)
+			
+			return [screenLocation[0], screenLocation[1], sensor.value];
+		}) as ([number, number] | [number, number, number])[];
+
+		simpleheat(this.HeatmapCanvas).data(points).draw();
+
+		this.Render();
+	}
+
+	/**
 	 * Draws an SVG
 	 *
 	 * @param image - Image URL
@@ -168,6 +193,24 @@ export default class CanvasRenderer {
 		};
 		img.crossOrigin = 'anonymous';
 		img.src = image;
+	}
+
+	/**
+	 * Creates a grid with location markers
+	 * 
+	 * @param interval - How much room should there be between lines
+	 * @constructor
+	 */
+	LocationGrid(interval: number) {
+		[...new Array(Math.floor(this.Canvas.height/interval)).keys()].forEach((y) => {
+			this.Line([0, y*interval], [this.Canvas.width, y*interval], Color.TRANSPARENT_WHITE)
+			this.Text((y*interval).toFixed() + "y", [15, y*interval + 15])
+		});
+
+		[...new Array(Math.floor(this.Canvas.width/interval)).keys()].forEach((x) => {
+			this.Line([x*interval, 0], [x*interval, this.Canvas.height], Color.TRANSPARENT_WHITE)
+			this.Text((x*interval).toFixed() + "x", [x*interval + 15, 15])
+		})
 	}
 
 	/**
@@ -199,7 +242,13 @@ export default class CanvasRenderer {
 	 */
 	Render() {
 		imageData = this.Context.getImageData(0, 0, window.innerWidth * 4, window.innerHeight * 4);
+		heatmapImageData = this.HeatmapContext.getImageData(0, 0, window.innerWidth * 4, window.innerHeight * 4);
 		this.RenderContext.putImageData(imageData, 0, 0);
+		// const img = new Image();
+		// img.src = heatmapImageData;
+		// this.RenderContext.drawImage(img, 0, 0);
+
+		this.RenderContext.putImageData(heatmapImageData, 0, 0);
 	}
 
 	/**
@@ -239,10 +288,12 @@ export default class CanvasRenderer {
 	private OnMouseMove(e: MouseEvent) {
 		if (!startingPosition) return;
 		if (!imageData) return;
+		if (!heatmapImageData) return;
 
 		const canvas = e.target as HTMLCanvasElement;
 		const context = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
 
+		
 		lastImageDrawPosition = [
 			lastImageDrawPosition[0] + (e.x - startingPosition[0]),
 			lastImageDrawPosition[1] + (e.y - startingPosition[1]),
@@ -251,5 +302,17 @@ export default class CanvasRenderer {
 
 		context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 		context.putImageData(imageData, lastImageDrawPosition[0], lastImageDrawPosition[1]);
+		
+		const heatmapCanvas = document.getElementById('heatmapCanvas') as HTMLCanvasElement
+		const img = new Image();
+		//img.src = "https://avatars.githubusercontent.com/u/57702588?v=4";
+		img.src = heatmapCanvas.toDataURL()
+		
+		img.onload = (() => {
+			console.log('pain')
+		})
+		
+		context.drawImage(img, lastImageDrawPosition[0], lastImageDrawPosition[1]);
+		// context.putImageData(heatmapImageData, lastImageDrawPosition[0], lastImageDrawPosition[1]);
 	}
 }
