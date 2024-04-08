@@ -16,3 +16,25 @@
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
+
+.app-container {
+    height: 100vh;
+    width: 100vw;
+    background-color: aqua;
+    overflow: hidden;
+}
+
+.map-container {
+    height: 60%;
+    background-color: aquamarine;
+}
+
+.suggestions-container {
+    height: 35%;
+    background-color: blueviolet;
+}
+
+.footer-container {
+    height: 5%;
+    background-color: brown;
+}
