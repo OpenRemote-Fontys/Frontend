@@ -9,15 +9,15 @@ function App() {
 	}, []);
 
 	return (
-		<div className='app-container'>
-            <div className='map-container'>
-                <MapComponent></MapComponent>
-            </div>
+		<div className='app-container'>            
             <div className='suggestions-container'>
-                <SuggestionComponent></SuggestionComponent>
+                <SuggestionComponent />
+            </div>
+            <div className='map-container'>
+                <MapComponent />
             </div>
             <div className='footer-container'>
-                <FooterComponent></FooterComponent>
+                <FooterComponent />
             </div>
         </div>
 	);
