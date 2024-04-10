@@ -3,33 +3,25 @@ import { Font } from '../types/Font.ts';
 import Sensor from '../types/Sensor.ts';
 import simpleheat from 'simpleheat';
 
-// OnMouse variables declared here because the object 'this' scope is unavailable in an On... event
-let imageData: ImageData | undefined;
-let heatmapImageData: ImageData | undefined;
-let lastImageDrawPosition: number[] = [0, 0];
-let startingPosition: number[] | undefined = undefined;
-
 export default class CanvasRenderer {
 	Screen: number[];
 	Canvas: OffscreenCanvas;
 	Context: OffscreenCanvasRenderingContext2D;
 	RenderCanvas: HTMLCanvasElement;
 	RenderContext: CanvasRenderingContext2D;
-	HeatmapCanvas: HTMLCanvasElement;
-	HeatmapContext: CanvasRenderingContext2D;
+	HeatmapCanvas: OffscreenCanvas;
+	HeatmapContext: OffscreenCanvasRenderingContext2D;
+	Origin: number[];
 
-	constructor(canvas: HTMLCanvasElement, heatmapCanvas: HTMLCanvasElement) {
+	constructor(canvas: HTMLCanvasElement, origin: number[]) {
 		this.Screen = [window.outerWidth, window.outerHeight];
 		this.RenderCanvas = canvas;
 		this.RenderContext = this.RenderCanvas.getContext('2d') ?? new CanvasRenderingContext2D();
-		this.HeatmapCanvas = heatmapCanvas
-		this.HeatmapContext = this.HeatmapCanvas.getContext('2d') ?? new CanvasRenderingContext2D();
+		this.HeatmapCanvas = new OffscreenCanvas(window.innerWidth * 4, window.innerHeight * 4);
+		this.HeatmapContext = this.HeatmapCanvas.getContext('2d') ?? new OffscreenCanvasRenderingContext2D();
 		this.Canvas = new OffscreenCanvas(window.innerWidth * 4, window.innerHeight * 4);
 		this.Context = this.Canvas.getContext('2d') ?? new OffscreenCanvasRenderingContext2D();
-		this.RenderCanvas.onmousedown = this.OnMouseDown;
-		this.RenderCanvas.onmouseup = this.OnMouseUp;
-		this.RenderCanvas.onmouseleave = this.OnMouseUp;
-		this.RenderCanvas.onmousemove = this.OnMouseMove;
+		this.Origin = origin;
 	}
 
 	/**
@@ -58,8 +50,8 @@ export default class CanvasRenderer {
 		// Write to canvas
 		this.SetColor(color);
 		stroke
-			? this.Context.strokeText(text, rLocation[0], rLocation[1], maxWidth)
-			: this.Context.fillText(text, rLocation[0], rLocation[1], maxWidth);
+			? this.RenderContext.strokeText(text, rLocation[0], rLocation[1], maxWidth)
+			: this.RenderContext.fillText(text, rLocation[0], rLocation[1], maxWidth);
 
 		this.Render();
 	}
@@ -83,9 +75,9 @@ export default class CanvasRenderer {
 
 		// Write to canvas
 		this.SetColor(color);
-		this.Context.moveTo(rFrom[0], rFrom[1]);
-		this.Context.lineTo(rTo[0], rTo[1]);
-		this.Context.stroke();
+		this.RenderContext.moveTo(rFrom[0], rFrom[1]);
+		this.RenderContext.lineTo(rTo[0], rTo[1]);
+		this.RenderContext.stroke();
 
 		this.Render();
 	}
@@ -107,9 +99,9 @@ export default class CanvasRenderer {
 
 		// Write to canvas
 		this.SetColor(color);
-		this.Context.beginPath();
-		this.Context.arc(rCenter[0], rCenter[1], radius, 0, 2 * Math.PI);
-		this.Context.stroke();
+		this.RenderContext.beginPath();
+		this.RenderContext.arc(rCenter[0], rCenter[1], radius, 0, 2 * Math.PI);
+		this.RenderContext.stroke();
 
 		this.Render();
 	}
@@ -143,12 +135,12 @@ export default class CanvasRenderer {
 
 		// Write to canvas
 		this.SetColor(startColor);
-		const grd = this.Context.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
+		const grd = this.RenderContext.createRadialGradient(centerX, centerY, 0, centerX, centerY, width / 2);
 		grd.addColorStop(0, startColor);
 		grd.addColorStop(0.8, endColor);
 		grd.addColorStop(1, Color.TRANSPARENT);
-		this.Context.fillStyle = grd;
-		this.Context.fillRect(Center[0], Center[1], width, height);
+		this.RenderContext.fillStyle = grd;
+		this.RenderContext.fillRect(Center[0], Center[1], width, height);
 
 		this.Render();
 	}
@@ -161,12 +153,12 @@ export default class CanvasRenderer {
 	 */
 	Heatmap(data: Sensor[]) {
 		const points = data.map((sensor) => {
-			const screenLocation = this.GetScreenLocation(sensor.location)
-			
+			const screenLocation = this.GetScreenLocation([sensor.latitude, sensor.longitude]);
 			return [screenLocation[0], screenLocation[1], sensor.value];
 		}) as ([number, number] | [number, number, number])[];
 
-		simpleheat(this.HeatmapCanvas).data(points).draw();
+		console.log(points);
+		simpleheat(this.RenderCanvas).data(points).draw();
 
 		this.Render();
 	}
@@ -188,7 +180,7 @@ export default class CanvasRenderer {
 		// Write to canvas
 		const img = new Image();
 		img.onload = () => {
-			this.Context.drawImage(img, rLocation[0], rLocation[1]);
+			this.RenderContext.drawImage(img, rLocation[0], rLocation[1]);
 			this.Render();
 		};
 		img.crossOrigin = 'anonymous';
@@ -197,20 +189,20 @@ export default class CanvasRenderer {
 
 	/**
 	 * Creates a grid with location markers
-	 * 
+	 *
 	 * @param interval - How much room should there be between lines
 	 * @constructor
 	 */
 	LocationGrid(interval: number) {
-		[...new Array(Math.floor(this.Canvas.height/interval)).keys()].forEach((y) => {
-			this.Line([0, y*interval], [this.Canvas.width, y*interval], Color.TRANSPARENT_WHITE)
-			this.Text((y*interval).toFixed() + "y", [15, y*interval + 15])
+		[...new Array(Math.floor(this.Canvas.height / interval)).keys()].forEach((y) => {
+			this.Line([0, y * interval], [this.Canvas.width, y * interval], Color.TRANSPARENT_WHITE);
+			this.Text((y * interval).toFixed() + 'y', [15, y * interval + 15]);
 		});
 
-		[...new Array(Math.floor(this.Canvas.width/interval)).keys()].forEach((x) => {
-			this.Line([x*interval, 0], [x*interval, this.Canvas.height], Color.TRANSPARENT_WHITE)
-			this.Text((x*interval).toFixed() + "x", [x*interval + 15, 15])
-		})
+		[...new Array(Math.floor(this.Canvas.width / interval)).keys()].forEach((x) => {
+			this.Line([x * interval, 0], [x * interval, this.Canvas.height], Color.TRANSPARENT_WHITE);
+			this.Text((x * interval).toFixed() + 'x', [x * interval + 15, 15]);
+		});
 	}
 
 	/**
@@ -220,7 +212,7 @@ export default class CanvasRenderer {
 	 * @constructor
 	 */
 	Zoom(level: number) {
-		this.Context.scale(level, level);
+		this.RenderContext.scale(level, level);
 		this.RenderContext.scale(level, level);
 	}
 
@@ -231,7 +223,7 @@ export default class CanvasRenderer {
 	 * @constructor
 	 */
 	SetFont(font: Font) {
-		this.Context.font = font;
+		this.RenderContext.font = font;
 		this.Render();
 	}
 
@@ -241,14 +233,9 @@ export default class CanvasRenderer {
 	 * @constructor
 	 */
 	Render() {
-		imageData = this.Context.getImageData(0, 0, window.innerWidth * 4, window.innerHeight * 4);
-		heatmapImageData = this.HeatmapContext.getImageData(0, 0, window.innerWidth * 4, window.innerHeight * 4);
-		this.RenderContext.putImageData(imageData, 0, 0);
-		// const img = new Image();
-		// img.src = heatmapImageData;
-		// this.RenderContext.drawImage(img, 0, 0);
-
-		this.RenderContext.putImageData(heatmapImageData, 0, 0);
+		// const imageData = this.RenderContext.getImageData(0, 0, window.innerWidth * 4, window.innerHeight * 4);
+		//
+		// this.RenderContext.putImageData(imageData, 0, 0);
 	}
 
 	/**
@@ -262,7 +249,9 @@ export default class CanvasRenderer {
 		// Verify params
 		if (position.length != 2) throw new RangeError(`Length of 'position' must be 2, currently ${position.length}`);
 
-		return [(position[0] / 1920) * this.Screen[0], (position[1] / 1080) * this.Screen[1]];
+		// Return canvas location
+		return [(this.Origin[0] - position[0]) * 100000, (position[1] - this.Origin[1]) * 100000];
+		// return [(position[0] / 1920) * this.Screen[0], (position[1] / 1080) * this.Screen[1]];
 	}
 
 	/**
@@ -273,46 +262,7 @@ export default class CanvasRenderer {
 	 * @private
 	 */
 	private SetColor(color: Color) {
-		this.Context.fillStyle = color;
-		this.Context.strokeStyle = color;
-	}
-
-	private OnMouseDown(e: MouseEvent) {
-		startingPosition = [e.x, e.y];
-	}
-
-	private OnMouseUp() {
-		startingPosition = undefined;
-	}
-
-	private OnMouseMove(e: MouseEvent) {
-		if (!startingPosition) return;
-		if (!imageData) return;
-		if (!heatmapImageData) return;
-
-		const canvas = e.target as HTMLCanvasElement;
-		const context = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
-
-		
-		lastImageDrawPosition = [
-			lastImageDrawPosition[0] + (e.x - startingPosition[0]),
-			lastImageDrawPosition[1] + (e.y - startingPosition[1]),
-		];
-		startingPosition = [e.x, e.y];
-
-		context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-		context.putImageData(imageData, lastImageDrawPosition[0], lastImageDrawPosition[1]);
-		
-		const heatmapCanvas = document.getElementById('heatmapCanvas') as HTMLCanvasElement
-		const img = new Image();
-		//img.src = "https://avatars.githubusercontent.com/u/57702588?v=4";
-		img.src = heatmapCanvas.toDataURL()
-		
-		img.onload = (() => {
-			console.log('pain')
-		})
-		
-		context.drawImage(img, lastImageDrawPosition[0], lastImageDrawPosition[1]);
-		// context.putImageData(heatmapImageData, lastImageDrawPosition[0], lastImageDrawPosition[1]);
+		this.RenderContext.fillStyle = color;
+		this.RenderContext.strokeStyle = color;
 	}
 }
