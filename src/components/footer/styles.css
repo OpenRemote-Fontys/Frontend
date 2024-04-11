@@ -1,37 +1,34 @@
-
 .footer-wrapper {
-    height: 100%;
-    width: 100%;
-    background-color: rgba(var(--housestyle-secondary-colour), 1);
+	height: 100%;
+	width: 100%;
+	background-color: rgba(var(--housestyle-secondary-colour), 1);
 
-    font-size: 36px;
+	font-size: 36px;
 }
 
 .flex-container {
-    display: flex;
-    flex-direction: row;    
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-items: center;
-    align-content: stretch;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-items: center;
+	align-content: stretch;
 }
 
-.building-information-wrapper {    
-    display: block;
-    align-self: auto;
-    width: 70%;
+.building-information-wrapper {
+	display: block;
+	align-self: auto;
+	width: 65%;
 }
 
 .clock-wrapper {
-    display: block;
-    align-self: auto;
-    width: 15%;
+	display: block;
+	align-self: auto;
+	width: 20%;
 }
 
 .last-update-wrapper {
-    display: block;
-    align-self: auto;
-    width: 15%;
+	display: block;
+	align-self: auto;
+	width: 15%;
 }
-
-

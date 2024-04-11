@@ -1,12 +1,12 @@
-import React from "react";
-import "./styles.css";
+import React from 'react';
+import './styles.css';
 
 const SuggestionComponent = () => {
-    return (
-        <div>
-            This is a Suggestions Container.
-        </div>
-    )
-}
+	return (
+		<div className="suggestions-wrapper">
+			<div className="suggestions-card card">This is a Suggestions Container.</div>
+		</div>
+	);
+};
 
 export default SuggestionComponent;
