@@ -1,15 +1,13 @@
 export default class Room {
 	id: number;
 	name: string;
-	longitude: number;
-	latitude: number;
+	points: number[][];
 	visualizationData: string;
 
-	constructor(id: number, name: string, longitude: number, latitude: number, visualizationData: string) {
+	constructor(id: number, name: string, points: number[][], visualizationData: string) {
 		this.id = id;
 		this.name = name;
-		this.longitude = longitude;
-		this.latitude = latitude;
+		this.points = points;
 		this.visualizationData = visualizationData;
 	}
 }
