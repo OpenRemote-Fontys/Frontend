@@ -10,14 +10,32 @@ export default class CanvasRender {
 	Bound: number[];
 	Map: CanvasMap;
 
+	/**
+	 * Handles all the canvas code
+	 *
+	 * @param canvas - Ref to the canvas
+	 * @param map - Map data
+	 */
 	constructor(canvas: HTMLCanvasElement, map: CanvasMap) {
 		this.Canvas = canvas;
 		this.Context = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
 		this.Origin = map.topLeftBounds;
 		this.Bound = map.bottomRightBounds;
 		this.Map = map;
+
+		this.Canvas.onclick = (ev) => {
+			console.log([
+				this.Origin[0] + (ev.x / this.Canvas.width) * (this.Bound[0] - this.Origin[0]),
+				this.Origin[1] + (ev.y / this.Canvas.height) * (this.Bound[1] - this.Origin[1]),
+			]);
+		};
 	}
 
+	/**
+	 * Adds all map elements
+	 *
+	 * @constructor
+	 */
 	Init() {
 		this.Context.scale(0.7, 0.7);
 		this.AddMap(this.Map.svgMap);
@@ -25,6 +43,13 @@ export default class CanvasRender {
 		this.AddRooms(this.Map.rooms);
 	}
 
+	/**
+	 * Add image as map
+	 *
+	 * @param mapUrl - Full URL to image to load as map
+	 * @constructor
+	 * @private
+	 */
 	private AddMap(mapUrl: string) {
 		const image = new Image();
 		image.src = mapUrl;
@@ -33,16 +58,31 @@ export default class CanvasRender {
 		};
 	}
 
+	/**
+	 * Adds all rooms to the map
+	 *
+	 * @param rooms - List of rooms to add
+	 * @constructor
+	 * @private
+	 */
 	private AddRooms(rooms: Room[]) {
-		this.Context.globalCompositeOperation = 'destination-over';
+		this.Context.globalCompositeOperation = 'destination-over'; // Needed to prevent the rooms from overwriting the heatmap
 		rooms.forEach((room: Room) => {
 			this.AddRoom(room.points, Color.WHITE); // TODO: hex to color
 		});
 		this.Context.globalCompositeOperation = 'source-over';
 	}
 
+	/**
+	 * Adds a single room to the map
+	 *
+	 * @param points - List of coordinates representing the corners of the room
+	 * @param color - The color of the room
+	 * @constructor
+	 * @private
+	 */
 	private AddRoom(points: number[][], color: Color) {
-		const canvasPoints = points.map((point) => this.GpsToScreen(point));
+		const canvasPoints = points.map((point) => this.GpsToScreen(point)); // Convert GPS coordinates to screen position
 
 		this.Context.fillStyle = color;
 		this.Context.beginPath();
@@ -55,6 +95,12 @@ export default class CanvasRender {
 		this.Context.fill();
 	}
 
+	/**
+	 * Creates a heatmap from data
+	 *
+	 * @constructor
+	 * @private
+	 */
 	private AddHeatmap() {
 		simpleheat(this.Canvas)
 			.data([
@@ -64,10 +110,17 @@ export default class CanvasRender {
 			.draw();
 	}
 
+	/**
+	 * Converts GPS coordinates to screen locations
+	 *
+	 * @param coordinates - GPS coordinates
+	 * @constructor
+	 * @private
+	 */
 	private GpsToScreen(coordinates: number[]) {
-		const size = [this.Bound[0] - this.Origin[0], this.Bound[1] - this.Origin[1]];
-		const location = [coordinates[0] - this.Origin[0], coordinates[1] - this.Origin[1]];
-
-		return [(location[0] / size[0]) * this.Canvas.width, (location[1] / size[1]) * this.Canvas.height];
+		return [
+			((coordinates[0] - this.Origin[0]) / (this.Bound[0] - this.Origin[0])) * this.Canvas.width,
+			((coordinates[1] - this.Origin[1]) / (this.Bound[1] - this.Origin[1])) * this.Canvas.height,
+		];
 	}
 }
