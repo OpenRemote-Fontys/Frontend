@@ -38,6 +38,7 @@ export default class CanvasRender {
 	 */
 	Init() {
 		this.Context.scale(0.7, 0.7);
+
 		this.AddMap(this.Map.svgMap);
 		this.AddHeatmap();
 		this.AddRooms(this.Map.rooms);
@@ -68,7 +69,7 @@ export default class CanvasRender {
 	private AddRooms(rooms: Room[]) {
 		this.Context.globalCompositeOperation = 'destination-over'; // Needed to prevent the rooms from overwriting the heatmap
 		rooms.forEach((room: Room) => {
-			this.AddRoom(room.points, Color.WHITE); // TODO: hex to color
+			this.AddRoom(room.points, room.visualizationData); // TODO: hex to color
 		});
 		this.Context.globalCompositeOperation = 'source-over';
 	}
@@ -119,8 +120,8 @@ export default class CanvasRender {
 	 */
 	private GpsToScreen(coordinates: number[]) {
 		return [
-			((coordinates[0] - this.Origin[0]) / (this.Bound[0] - this.Origin[0])) * this.Canvas.width,
-			((coordinates[1] - this.Origin[1]) / (this.Bound[1] - this.Origin[1])) * this.Canvas.height,
+			((coordinates[0] - this.Origin[0]) / (this.Bound[0] - this.Origin[0])) * this.Canvas.width * 1.43, // 1.43 to compensate for 0.7 zoom
+			((coordinates[1] - this.Origin[1]) / (this.Bound[1] - this.Origin[1])) * this.Canvas.height * 1.43,
 		];
 	}
 }

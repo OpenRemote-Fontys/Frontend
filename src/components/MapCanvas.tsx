@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import CanvasRender from '../classes/CanvasRender.ts';
 import CanvasMap from '../types/CanvasMap.ts';
 import Room from '../types/Room.ts';
+import { Color } from '../types/Color.ts';
 
 export default function MapCanvas() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -28,7 +29,18 @@ export default function MapCanvas() {
 								[51.45100683518518, 5.453057201562499],
 								[51.45098336666666, 5.453057201562499],
 							],
-							'#FFFFFF',
+							Color.TRANSPARENT_PURPLE,
+						),
+						new Room(
+							2,
+							'Room 2',
+							[
+								[51.451041420370366, 5.453043318229167],
+								[51.45113652962963, 5.453043318229167],
+								[51.45113652962963, 5.453057635416666],
+								[51.451042655555554, 5.453057635416666],
+							],
+							Color.TRANSPARENT_GREEN,
 						),
 					],
 				);

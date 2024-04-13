@@ -1,10 +1,12 @@
+import { Color } from './Color.ts';
+
 export default class Room {
 	id: number;
 	name: string;
 	points: number[][];
-	visualizationData: string;
+	visualizationData: Color;
 
-	constructor(id: number, name: string, points: number[][], visualizationData: string) {
+	constructor(id: number, name: string, points: number[][], visualizationData: Color) {
 		this.id = id;
 		this.name = name;
 		this.points = points;
