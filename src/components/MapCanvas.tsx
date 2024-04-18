@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import CanvasRender from '../classes/CanvasRender.ts';
 import CanvasMap from '../types/CanvasMap.ts';
-import Room from '../types/Room.ts';
 import { Color } from '../types/Color.ts';
 
 export default function MapCanvas() {
@@ -20,28 +19,28 @@ export default function MapCanvas() {
 					[51.450472, 5.452806],
 					[51.451806, 5.453639],
 					[
-						new Room(
-							1,
-							'Room 1',
-							[
+						{
+							id: 1,
+							name: 'Room 1',
+							points: [
 								[51.45098336666666, 5.4530463552083335],
 								[51.45100683518518, 5.4530463552083335],
 								[51.45100683518518, 5.453057201562499],
 								[51.45098336666666, 5.453057201562499],
 							],
-							Color.TRANSPARENT_PURPLE,
-						),
-						new Room(
-							2,
-							'Room 2',
-							[
+							visualizationData: Color.TRANSPARENT_PURPLE,
+						},
+						{
+							id: 2,
+							name: 'Room 2',
+							points: [
 								[51.451041420370366, 5.453043318229167],
 								[51.45113652962963, 5.453043318229167],
 								[51.45113652962963, 5.453057635416666],
 								[51.451042655555554, 5.453057635416666],
 							],
-							Color.TRANSPARENT_GREEN,
-						),
+							visualizationData: Color.TRANSPARENT_GREEN,
+						},
 					],
 				);
 
