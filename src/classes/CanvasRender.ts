@@ -104,9 +104,11 @@ export default class CanvasRender {
 	 */
 	private AddHeatmap() {
 		simpleheat(this.Canvas)
+			.radius(40, 15)
 			.data([
-				[100, 100, 0.9],
-				[200, 100, 0.85],
+				[800, 800, 0.4],
+				[850, 820, 0.7],
+				[810, 850, 0.45],
 			])
 			.draw();
 	}
