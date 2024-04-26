@@ -1,14 +1,18 @@
-import CanvasMap from '../types/CanvasMap.ts';
+import MapData from '../types/MapData.ts';
 import Room from '../types/Room.ts';
 import { Color } from '../types/Color.ts';
 import simpleheat from 'simpleheat';
+import Sensor from '../types/Sensor.ts';
+import Coordinates from '../types/Coordinates.ts';
 
 export default class CanvasRender {
 	Canvas: HTMLCanvasElement;
 	Context: CanvasRenderingContext2D;
-	Origin: number[];
-	Bound: number[];
-	Map: CanvasMap;
+	Origin: Coordinates;
+	Bound: Coordinates;
+	Map: MapData;
+	Sensors: Sensor[];
+	private SimpleHeat: simpleheat.Instance;
 
 	/**
 	 * Handles all the canvas code
@@ -16,17 +20,20 @@ export default class CanvasRender {
 	 * @param canvas - Ref to the canvas
 	 * @param map - Map data
 	 */
-	constructor(canvas: HTMLCanvasElement, map: CanvasMap) {
+	constructor(canvas: HTMLCanvasElement, map: MapData) {
 		this.Canvas = canvas;
 		this.Context = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
 		this.Origin = map.topLeftBounds;
 		this.Bound = map.bottomRightBounds;
 		this.Map = map;
+		this.Sensors = [];
+		this.SimpleHeat = simpleheat(this.Canvas);
+		this.SimpleHeat.radius(40, 15);
 
 		this.Canvas.onclick = (ev) => {
 			console.log([
-				this.Origin[0] + (ev.x / this.Canvas.width) * (this.Bound[0] - this.Origin[0]),
-				this.Origin[1] + (ev.y / this.Canvas.height) * (this.Bound[1] - this.Origin[1]),
+				this.Origin.longitude + (ev.x / this.Canvas.width) * (this.Bound.longitude - this.Origin.longitude),
+				this.Origin.latitude + (ev.y / this.Canvas.height) * (this.Bound.latitude - this.Origin.latitude),
 			]);
 		};
 	}
@@ -39,7 +46,7 @@ export default class CanvasRender {
 	Init() {
 		this.Context.scale(0.7, 0.7);
 
-		this.AddMap(this.Map.svgMap);
+		this.AddMap(this.Map.mapUrl);
 		this.AddHeatmap();
 		this.AddRooms(this.Map.rooms);
 	}
@@ -69,7 +76,7 @@ export default class CanvasRender {
 	private AddRooms(rooms: Room[]) {
 		this.Context.globalCompositeOperation = 'destination-over'; // Needed to prevent the rooms from overwriting the heatmap
 		rooms.forEach((room: Room) => {
-			this.AddRoom(room.points, room.visualizationData); // TODO: hex to color
+			this.AddRoom(room.locationArrays, room.color); // TODO: hex to color
 		});
 		this.Context.globalCompositeOperation = 'source-over';
 	}
@@ -82,7 +89,7 @@ export default class CanvasRender {
 	 * @constructor
 	 * @private
 	 */
-	private AddRoom(points: number[][], color: Color) {
+	private AddRoom(points: Coordinates[], color: Color) {
 		const canvasPoints = points.map((point) => this.GpsToScreen(point)); // Convert GPS coordinates to screen position
 
 		this.Context.fillStyle = color;
@@ -103,14 +110,14 @@ export default class CanvasRender {
 	 * @private
 	 */
 	private AddHeatmap() {
-		simpleheat(this.Canvas)
-			.radius(40, 15)
-			.data([
-				[800, 800, 0.4],
-				[850, 820, 0.7],
-				[810, 850, 0.45],
-			])
-			.draw();
+		const data = this.Sensors.map((sensor) => {
+			const location = this.GpsToScreen(sensor.coordinates);
+			return [...location, sensor.value];
+		}) as [number, number, number][];
+		console.log(data);
+		this.SimpleHeat.clear();
+		this.SimpleHeat.data(data);
+		this.SimpleHeat.draw();
 	}
 
 	/**
@@ -120,10 +127,25 @@ export default class CanvasRender {
 	 * @constructor
 	 * @private
 	 */
-	private GpsToScreen(coordinates: number[]) {
+	private GpsToScreen(coordinates: Coordinates) {
 		return [
-			((coordinates[0] - this.Origin[0]) / (this.Bound[0] - this.Origin[0])) * this.Canvas.width * 1.43, // 1.43 to compensate for 0.7 zoom
-			((coordinates[1] - this.Origin[1]) / (this.Bound[1] - this.Origin[1])) * this.Canvas.height * 1.43,
+			((coordinates.longitude - this.Origin.longitude) / (this.Bound.longitude - this.Origin.longitude)) *
+				this.Canvas.width *
+				1.43, // 1.43 to compensate for 0.7 zoom
+			((coordinates.latitude - this.Origin.latitude) / (this.Bound.latitude - this.Origin.latitude)) *
+				this.Canvas.height *
+				1.43,
 		];
+	}
+
+	/**
+	 * Updates the map with new sensor data
+	 *
+	 * @param sensorData - New sensor data
+	 * @constructor
+	 */
+	UpdateMap(sensorData: Sensor[]) {
+		this.Sensors = sensorData;
+		this.AddHeatmap();
 	}
 }

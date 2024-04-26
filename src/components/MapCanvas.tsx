@@ -1,53 +1,52 @@
-import { useEffect, useRef } from 'react';
-import CanvasRender from '../classes/CanvasRender.ts';
-import CanvasMap from '../types/CanvasMap.ts';
-import { Color } from '../types/Color.ts';
+import { ImageOverlay, MapContainer, Polygon, TileLayer } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useEffect, useState } from 'react';
+import MapData from '../types/MapData.ts';
+import { LatLngBoundsExpression, LatLngExpression } from 'leaflet';
+import Sensor from '../types/Sensor.ts';
+import Room from '../types/Room.ts';
+import Coordinates, { coordinatesToArray } from '../types/Coordinates.ts';
 
 export default function MapCanvas() {
-	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [mapData, setMapData] = useState<MapData | undefined>(undefined);
+	const [sensorData, setSensorData] = useState<Sensor[] | undefined>(undefined);
 
 	useEffect(() => {
 		fetch(new URL(import.meta.env.VITE_MAP_ENDPOINT, import.meta.env.VITE_BACKEND_URL))
 			.then((res) => res.json())
-			.then((mapData: CanvasMap) => {
-				if (!canvasRef.current) return;
-				if (!mapData) return;
-
-				// TODO: Temporary fix, remove
-				const canvasMap = new CanvasMap(
-					'https://autumn.revolt.chat/attachments/RfqzEfntQZNjAT2uVc-AGm27kkYvZF_7WBtRQx11FH/TQ.svg',
-					[51.450472, 5.452806],
-					[51.451806, 5.453639],
-					[
-						{
-							id: 1,
-							name: 'Room 1',
-							points: [
-								[51.45098336666666, 5.4530463552083335],
-								[51.45100683518518, 5.4530463552083335],
-								[51.45100683518518, 5.453057201562499],
-								[51.45098336666666, 5.453057201562499],
-							],
-							visualizationData: Color.TRANSPARENT_PURPLE,
-						},
-						{
-							id: 2,
-							name: 'Room 2',
-							points: [
-								[51.451041420370366, 5.453043318229167],
-								[51.45113652962963, 5.453043318229167],
-								[51.45113652962963, 5.453057635416666],
-								[51.451042655555554, 5.453057635416666],
-							],
-							visualizationData: Color.TRANSPARENT_GREEN,
-						},
-					],
-				);
-
-				const canvasRenderer = new CanvasRender(canvasRef.current, canvasMap);
-				canvasRenderer.Init();
+			.then((data: MapData) => {
+				setMapData(data);
+				window.setInterval(() => UpdateMap(), import.meta.env.VITE_MAP_UPDATE_INTERVAL as number);
 			});
 	}, []);
 
-	return <canvas height={window.innerHeight} width={window.innerWidth} ref={canvasRef} id="mapCanvas"></canvas>;
+	const UpdateMap = () => {
+		fetch(new URL(import.meta.env.VITE_SENSOR_ENDPOINT, import.meta.env.VITE_BACKEND_URL))
+			.then((res) => res.json())
+			.then((sensorData: Sensor[]) => setSensorData(sensorData));
+	};
+
+	if (!mapData) return <h1>Loading</h1>;
+
+	const center: LatLngExpression = [mapData.center.longitude, mapData.center.latitude];
+	const bounds: LatLngBoundsExpression = [
+		[mapData.topLeftBounds.longitude, mapData.topLeftBounds.latitude],
+		[mapData.bottomRightBounds.longitude, mapData.bottomRightBounds.latitude],
+	];
+
+	return (
+		<MapContainer center={center} zoom={19} scrollWheelZoom={false} className="w-screen h-screen">
+			<TileLayer
+				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+			/>
+			<ImageOverlay url={mapData.mapUrl} bounds={bounds} />
+			{mapData.rooms.map((room: Room) => {
+				const positions = room.locationArrays.map((coords: Coordinates) =>
+					coordinatesToArray(coords),
+				) as LatLngExpression[];
+				return <Polygon key={room.id} positions={positions} opacity={0.3} />;
+			})}
+		</MapContainer>
+	);
 }
