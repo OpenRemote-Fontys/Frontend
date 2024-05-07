@@ -8,6 +8,6 @@ export default interface Coordinates {
  *
  * @param coordinates
  */
-export function coordinatesToArray(coordinates: Coordinates): number[] {
-	return [coordinates.longitude, coordinates.latitude];
+export function coordinatesToArray<T = Array<number>>(coordinates: Coordinates): T {
+	return [coordinates.longitude, coordinates.latitude] as T;
 }

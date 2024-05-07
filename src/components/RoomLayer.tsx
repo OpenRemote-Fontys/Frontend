@@ -21,9 +21,11 @@ export default function RoomLayer(props: Readonly<RoomLayerProps>) {
 	return (
 		<>
 			{props.data.map((room: Room) => {
+				// Convert coordinates to Leaflet type
 				const positions = room.locationArrays.map((coords: Coordinates) =>
-					coordinatesToArray(coords),
-				) as LatLngExpression[];
+					coordinatesToArray<LatLngExpression>(coords),
+				);
+
 				return <Polygon key={room.id} positions={positions} opacity={0.3} />;
 			})}
 		</>

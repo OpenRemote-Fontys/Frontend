@@ -2,10 +2,11 @@ import { ImageOverlay, MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 import MapData from '../types/MapData.ts';
-import { LatLngBoundsExpression, LatLngExpression } from 'leaflet';
+import { LatLngBoundsExpression, LatLngExpression, LatLngTuple } from 'leaflet';
 import Sensor from '../types/Sensor.ts';
 import SensorLayer from './SensorLayer.tsx';
 import RoomLayer from './RoomLayer.tsx';
+import { coordinatesToArray } from '../types/Coordinates.ts';
 
 /**
  * Leaflet map used for displaying sensor data
@@ -16,26 +17,26 @@ export default function MapCanvas() {
 	const [sensorData, setSensorData] = useState<Sensor[] | undefined>(undefined);
 
 	useEffect(() => {
-		fetch(new URL(import.meta.env.VITE_MAP_ENDPOINT, import.meta.env.VITE_BACKEND_URL))
+		fetch(new URL(import.meta.env.VITE_MAP_ENDPOINT, import.meta.env.VITE_BACKEND_URL)) // Construct url
 			.then((res) => res.json())
 			.then((data: MapData) => {
 				setMapData(data);
-				window.setInterval(() => UpdateMap(), import.meta.env.VITE_MAP_UPDATE_INTERVAL as number);
+				window.setInterval(() => UpdateMap(), import.meta.env.VITE_MAP_UPDATE_INTERVAL as number); // Update map every x milliseconds
 			});
 	}, []);
 
 	const UpdateMap = () => {
-		fetch(new URL(import.meta.env.VITE_SENSOR_ENDPOINT, import.meta.env.VITE_BACKEND_URL))
+		fetch(new URL(import.meta.env.VITE_SENSOR_ENDPOINT, import.meta.env.VITE_BACKEND_URL)) // Construct url
 			.then((res) => res.json())
-			.then((sensorData: Sensor[]) => setSensorData(sensorData));
+			.then((sensorData: Sensor[]) => setSensorData(sensorData)); // Update sensors on map
 	};
 
 	if (!mapData || !sensorData) return <h1>Loading</h1>;
 
-	const center: LatLngExpression = [mapData.center.longitude, mapData.center.latitude];
+	const center = coordinatesToArray<LatLngExpression>(mapData.center);
 	const bounds: LatLngBoundsExpression = [
-		[mapData.topLeftBounds.longitude, mapData.topLeftBounds.latitude],
-		[mapData.bottomRightBounds.longitude, mapData.bottomRightBounds.latitude],
+		coordinatesToArray<LatLngTuple>(mapData.topLeftBounds),
+		coordinatesToArray<LatLngTuple>(mapData.bottomRightBounds),
 	];
 
 	return (

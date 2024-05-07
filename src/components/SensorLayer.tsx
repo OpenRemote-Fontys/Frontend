@@ -24,7 +24,7 @@ export default function SensorLayer(props: Readonly<SensorLayerProps>) {
 				return (
 					<Marker
 						key={sensor.id}
-						position={coordinatesToArray(sensor.coordinates) as LatLngExpression}
+						position={coordinatesToArray<LatLngExpression>(sensor.coordinates)}
 						title={sensor.name}
 						opacity={0}
 					>
