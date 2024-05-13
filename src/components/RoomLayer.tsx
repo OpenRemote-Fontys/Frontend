@@ -22,7 +22,7 @@ export default function RoomLayer(props: Readonly<RoomLayerProps>) {
 		<>
 			{props.data.map((room: Room) => {
 				// Convert coordinates to Leaflet type
-				const positions = room.locationArrays.map((coords: Coordinates) =>
+				const positions = room.roomBounds.map((coords: Coordinates) =>
 					coordinatesToArray<LatLngExpression>(coords),
 				);
 

@@ -6,6 +6,6 @@ import Coordinates from './Coordinates.ts';
 export default interface Room {
 	id: number;
 	name: string;
-	locationArrays: Coordinates[];
+	roomBounds: Coordinates[];
 	color: string;
 }
