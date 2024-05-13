@@ -1,7 +1,8 @@
-import { Marker, Tooltip } from 'react-leaflet';
+import { Marker, Tooltip, useMap } from 'react-leaflet';
 import Sensor from '../types/Sensor.ts';
 import { coordinatesToArray } from '../types/Coordinates.ts';
 import { LatLngExpression } from 'leaflet';
+import { useState } from 'react';
 
 /**
  * HTML Props for SensorLayer
@@ -18,6 +19,14 @@ interface SensorLayerProps {
  * @constructor
  */
 export default function SensorLayer(props: Readonly<SensorLayerProps>) {
+	const [markerVisibility, setMarkerVisibility] = useState<boolean>(false);
+	const map = useMap();
+
+	map.on('zoomend', () => {
+		if (map.getZoom() >= 16) setMarkerVisibility(true);
+		else setMarkerVisibility(false);
+	});
+
 	return (
 		<>
 			{props.data.map((sensor: Sensor) => {
@@ -26,11 +35,18 @@ export default function SensorLayer(props: Readonly<SensorLayerProps>) {
 						key={sensor.id}
 						position={coordinatesToArray<LatLngExpression>(sensor.coordinates)}
 						title={sensor.name}
-						opacity={0}
+						opacity={markerVisibility ? 1 : 0}
 					>
-						<Tooltip permanent={true}>
-							<p>{sensor.value}</p>
-						</Tooltip>
+						{markerVisibility ? (
+							<Tooltip
+								position={coordinatesToArray<LatLngExpression>(sensor.coordinates)}
+								permanent={true}
+							>
+								<p>{sensor.value}</p>
+							</Tooltip>
+						) : (
+							<></>
+						)}
 					</Marker>
 				);
 			})}
