@@ -6,12 +6,10 @@
 font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 line-height: 1.5;
 font-weight: 400;
-
 font-synthesis: none;
 text-rendering: optimizeLegibility;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
-
 --housestyle-background-colour: 26, 31, 56;
 --housestyle-secondary-colour: 71, 79, 122;
 --housestyle-light-text-colour: 244, 244, 244;
