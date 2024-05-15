@@ -1,11 +1,11 @@
 .suggestions-wrapper {
 	width: 100%;
 	height: 100%;
-
+	
 	padding-top: 10px;
 }
-
+	
 .suggestions-card {
 	width: 95%;
-	height: calc(100% - 10px);
+	height: calc(100%);
 }
