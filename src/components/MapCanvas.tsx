@@ -2,11 +2,9 @@ import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 import MapData from '../types/MapData.ts';
-import { LatLngTuple } from 'leaflet';
 import Sensor from '../types/Sensor.ts';
 import SensorLayer from './SensorLayer.tsx';
 import RoomLayer from './RoomLayer.tsx';
-import { coordinatesToArray } from '../types/Coordinates.ts';
 
 /**
  * Leaflet map used for displaying sensor data
@@ -38,11 +36,7 @@ export default function MapCanvas() {
 			</div>
 		);
 
-	const center = coordinatesToArray<LatLngTuple>(mapData.topLeftBounds);
-	// const bounds: LatLngBoundsExpression = [
-	// 	coordinatesToArray<LatLngTuple>(mapData.topLeftBounds),
-	// 	coordinatesToArray<LatLngTuple>(mapData.bottomRightBounds),
-	// ];
+	const center = mapData.topLeftBounds;
 
 	return (
 		<MapContainer center={center} zoom={19} scrollWheelZoom={false} className="w-screen h-screen">
@@ -50,7 +44,6 @@ export default function MapCanvas() {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			{/*<ImageOverlay url={mapData.mapUrl} bounds={bounds} />*/}
 			<RoomLayer data={mapData.rooms} />
 			<SensorLayer data={sensorData} />
 		</MapContainer>
