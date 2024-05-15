@@ -1,13 +1,13 @@
 import Room from './Room.ts';
-import Coordinates from './Coordinates.ts';
+import { LatLngTuple } from 'leaflet';
 
 /**
  * Map data
  */
 export default interface MapData {
 	mapUrl: string;
-	topLeftBounds: Coordinates;
-	bottomRightBounds: Coordinates;
-	center: Coordinates;
+	topLeftBounds: LatLngTuple;
+	bottomRightBounds: LatLngTuple;
+	center: LatLngTuple;
 	rooms: Room[];
 }
