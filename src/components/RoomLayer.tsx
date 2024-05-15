@@ -26,7 +26,15 @@ export default function RoomLayer(props: Readonly<RoomLayerProps>) {
 					coordinatesToArray<LatLngExpression>(coords),
 				);
 
-				return <Polygon key={room.id} positions={positions} opacity={0.3} />;
+				return (
+					<Polygon
+						key={room.id}
+						positions={positions}
+						opacity={0.3}
+						color={room.color}
+						fillColor={room.color}
+					/>
+				);
 			})}
 		</>
 	);
