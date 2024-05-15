@@ -5,8 +5,7 @@ import FooterComponent from './components/footer/Footer';
 import EmptyRoomsComponent from './components/emptyRooms/EmptyRooms';
 
 function App() {
-	useEffect(() => {}, []);
-
+	
 	return (
 		<div className="app-container">
 			<div className="suggestions-container">
