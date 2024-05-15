@@ -31,7 +31,12 @@ export default function MapCanvas() {
 			.then((sensorData: Sensor[]) => setSensorData(sensorData)); // Update sensors on map
 	};
 
-	if (!mapData || !sensorData) return <h1>Loading</h1>;
+	if (!mapData || !sensorData)
+		return (
+			<div className="flex justify-center align-middle h-screen">
+				<h1 className="h-fit my-auto animate-bounce">Loading</h1>
+			</div>
+		);
 
 	const center = coordinatesToArray<LatLngTuple>(mapData.topLeftBounds);
 	// const bounds: LatLngBoundsExpression = [
