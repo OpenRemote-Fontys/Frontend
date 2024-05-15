@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import MapComponent from './components/map/Map';
 import SuggestionComponent from './components/suggestions/Suggestions';
 import FooterComponent from './components/footer/Footer';
