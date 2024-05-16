@@ -1,8 +1,11 @@
-import { Color } from './Color.ts';
+import { LatLngExpression } from 'leaflet';
 
+/**
+ * Room data
+ */
 export default interface Room {
-	id: number;
+	id: string;
 	name: string;
-	points: number[][];
-	visualizationData: Color;
+	roomBounds: LatLngExpression[];
+	color: string;
 }
