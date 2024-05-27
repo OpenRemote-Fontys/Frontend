@@ -1,6 +1,6 @@
-import { Marker, Tooltip, useMap } from 'react-leaflet';
+import { Circle } from 'react-leaflet';
 import Sensor from '../types/Sensor.ts';
-import { useState } from 'react';
+import * as cc from 'color-convert';
 
 /**
  * HTML Props for SensorLayer
@@ -17,32 +17,17 @@ interface SensorLayerProps {
  * @constructor
  */
 export default function SensorLayer(props: Readonly<SensorLayerProps>) {
-	const [markerVisibility, setMarkerVisibility] = useState<boolean>(false);
-	const map = useMap();
-
-	map.on('zoomend', () => {
-		if (map.getZoom() >= 16) setMarkerVisibility(true);
-		else setMarkerVisibility(false);
-	});
-
 	return (
 		<>
 			{props.data.map((sensor: Sensor) => {
 				return (
-					<Marker
+					<Circle
 						key={sensor.id}
-						position={sensor.coordinates}
-						title={sensor.name}
-						opacity={markerVisibility ? 1 : 0}
-					>
-						{markerVisibility ? (
-							<Tooltip position={sensor.coordinates} permanent={true}>
-								<p>{sensor.value}</p>
-							</Tooltip>
-						) : (
-							<></>
-						)}
-					</Marker>
+						center={sensor.coordinates}
+						radius={sensor.value * 10}
+						color={'#00000000'}
+						fillColor={'#' + cc.hsv.hex([100 - sensor.value * 100, 100, 100])}
+					/>
 				);
 			})}
 		</>
