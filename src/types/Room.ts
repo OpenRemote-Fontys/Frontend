@@ -1,4 +1,4 @@
-import Coordinates from './Coordinates.ts';
+import { LatLngExpression } from 'leaflet';
 
 /**
  * Room data
@@ -6,6 +6,6 @@ import Coordinates from './Coordinates.ts';
 export default interface Room {
 	id: string;
 	name: string;
-	roomBounds: Coordinates[];
+	roomBounds: LatLngExpression[];
 	color: string;
 }

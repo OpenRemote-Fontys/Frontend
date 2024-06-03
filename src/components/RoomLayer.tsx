@@ -1,6 +1,4 @@
 import { Polygon } from 'react-leaflet';
-import Coordinates, { coordinatesToArray } from '../types/Coordinates.ts';
-import { LatLngExpression } from 'leaflet';
 import Room from '../types/Room.ts';
 
 /**
@@ -21,15 +19,10 @@ export default function RoomLayer(props: Readonly<RoomLayerProps>) {
 	return (
 		<>
 			{props.data.map((room: Room) => {
-				// Convert coordinates to Leaflet type
-				const positions = room.roomBounds.map((coords: Coordinates) =>
-					coordinatesToArray<LatLngExpression>(coords),
-				);
-
 				return (
 					<Polygon
 						key={room.id}
-						positions={positions}
+						positions={room.roomBounds}
 						opacity={0.3}
 						color={room.color}
 						fillColor={room.color}

@@ -1,7 +1,5 @@
 import { Marker, Tooltip, useMap } from 'react-leaflet';
 import Sensor from '../types/Sensor.ts';
-import { coordinatesToArray } from '../types/Coordinates.ts';
-import { LatLngExpression } from 'leaflet';
 import { useState } from 'react';
 
 /**
@@ -33,15 +31,12 @@ export default function SensorLayer(props: Readonly<SensorLayerProps>) {
 				return (
 					<Marker
 						key={sensor.id}
-						position={coordinatesToArray<LatLngExpression>(sensor.coordinates)}
+						position={sensor.coordinates}
 						title={sensor.name}
 						opacity={markerVisibility ? 1 : 0}
 					>
 						{markerVisibility ? (
-							<Tooltip
-								position={coordinatesToArray<LatLngExpression>(sensor.coordinates)}
-								permanent={true}
-							>
+							<Tooltip position={sensor.coordinates} permanent={true}>
 								<p>{sensor.value}</p>
 							</Tooltip>
 						) : (

@@ -1,5 +1,5 @@
 import { SensorType } from './SensorType.ts';
-import Coordinates from './Coordinates.ts';
+import { LatLngTuple } from 'leaflet';
 
 /**
  * Sensor data
@@ -10,5 +10,5 @@ export default interface Sensor {
 	roomId: number;
 	value: number;
 	sensorType: SensorType;
-	coordinates: Coordinates;
+	coordinates: LatLngTuple;
 }
