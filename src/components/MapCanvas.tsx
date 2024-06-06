@@ -15,7 +15,7 @@ export default function MapCanvas() {
 	const [sensorData, setSensorData] = useState<Sensor[] | undefined>(undefined);
 
 	useEffect(() => {
-		fetch(new URL(import.meta.env.VITE_MAP_ENDPOINT, import.meta.env.VITE_BACKEND_URL), {method: "GET"}) // Construct url
+		fetch(new URL(import.meta.env.VITE_MAP_ENDPOINT, import.meta.env.VITE_BACKEND_URL), { method: 'GET' }) // Construct url
 			.then((res) => res.json())
 			.then((data: MapData) => {
 				setMapData(data);
@@ -24,7 +24,7 @@ export default function MapCanvas() {
 	}, []);
 
 	const UpdateMap = () => {
-		fetch(new URL(import.meta.env.VITE_SENSOR_ENDPOINT, import.meta.env.VITE_BACKEND_URL), {method: "GET"}) // Construct url
+		fetch(new URL(import.meta.env.VITE_SENSOR_ENDPOINT, import.meta.env.VITE_BACKEND_URL), { method: 'GET' }) // Construct url
 			.then((res) => res.json())
 			.then((sensorData: Sensor[]) => setSensorData(sensorData)); // Update sensors on map
 	};
@@ -39,10 +39,12 @@ export default function MapCanvas() {
 	const center = mapData.topLeftBounds;
 
 	return (
-		<MapContainer center={center} zoom={19} scrollWheelZoom={false} className="w-full h-full">
+		<MapContainer center={center} zoom={19} scrollWheelZoom={false} className="w-full h-full" maxZoom={25}>
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+				maxNativeZoom={19}
+				maxZoom={25}
 			/>
 			<RoomLayer data={mapData.rooms} />
 			<SensorLayer data={sensorData} />
