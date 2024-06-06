@@ -24,9 +24,11 @@ export default function SensorLayer(props: Readonly<SensorLayerProps>) {
 					<Circle
 						key={sensor.id}
 						center={sensor.coordinates}
-						radius={sensor.value * 10}
+						radius={(sensor.value - 0.2) * 7}
 						color={'#00000000'}
-						fillColor={'#' + cc.hsv.hex([100 - sensor.value * 100, 100, 100])}
+						fillColor={
+							'#' + cc.hsv.hex([100 - (sensor.value > 1 ? 1 : sensor.value - 0.2 * 0.5) * 100, 100, 100])
+						}
 					/>
 				);
 			})}
