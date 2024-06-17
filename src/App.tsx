@@ -1,22 +1,15 @@
-import MapComponent from './components/map/Map';
-import SuggestionComponent from './components/suggestions/Suggestions';
-import FooterComponent from './components/footer/Footer';
-import EmptyRoomsComponent from './components/emptyRooms/EmptyRooms';
+import MapComponent from './components/Map.tsx';
+import SuggestionComponent from './components/Suggestions.tsx';
+import FooterComponent from './components/Footer.tsx';
+import EmptyRoomsComponent from './components/EmptyRooms.tsx';
 
 function App() {
-	
 	return (
-		<div className="app-container">
-			<div className="suggestions-container">
-				<SuggestionComponent />
-			</div>
-			<div className="EmptyRooms-container">
-				<EmptyRoomsComponent />
-			</div>
-			<div className="map-container">
-				<MapComponent />
-			</div>
-			<div className="footer-container">
+		<div className="flex flex-col h-screen">
+			<SuggestionComponent />
+			<EmptyRoomsComponent />
+			<MapComponent />
+			<div className="">
 				<FooterComponent />
 			</div>
 		</div>
