@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const FooterComponent = () => {
+const FooterComponent = (props: { lastUpdate: Date }) => {
 	const [time, setTime] = useState<Date>(new Date());
 
 	useEffect(() => {
@@ -15,7 +15,14 @@ const FooterComponent = () => {
 			<hr className="mx-8 h-1 opacity-80" />
 			<div className="flex justify-between p-2 mb-2 ">
 				<div className="text-4xl">
-					Last update: <p className="font-thin">2 minutes ago</p>
+					Last update:{' '}
+					<p className="font-thin">
+						{props.lastUpdate.toLocaleTimeString('nl-nl', {
+							hour: '2-digit',
+							minute: '2-digit',
+							second: undefined,
+						})}
+					</p>
 				</div>
 				<div className="text-5xl font-bold h-fit my-auto">
 					{time.toLocaleTimeString('nl-nl', {
