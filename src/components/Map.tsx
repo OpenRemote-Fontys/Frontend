@@ -1,10 +1,7 @@
 import MapCanvas from './MapCanvas.tsx';
-import FooterComponent from './Footer.tsx';
-import { useState } from 'react';
+import Footer from './Footer.tsx';
 
 const MapComponent = () => {
-	const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-
 	return (
 		<>
 			<div className="w-full h-inherit pt-2.5 overflow-hidden">
@@ -15,10 +12,10 @@ const MapComponent = () => {
 						<span className="bg-yellow-500 px-5">Noisy</span>
 						<span className="bg-green-600 px-5">Silent</span>
 					</div>
-					<MapCanvas onUpdate={setLastUpdate} />
+					<MapCanvas />
 				</div>
 			</div>
-			<FooterComponent lastUpdate={lastUpdate} />
+			<Footer />
 		</>
 	);
 };

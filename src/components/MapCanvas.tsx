@@ -10,7 +10,7 @@ import RoomLayer from './RoomLayer.tsx';
  * Leaflet map used for displaying sensor data
  * @constructor
  */
-export default function MapCanvas(props: { onUpdate: (Date: Date) => void }) {
+export default function MapCanvas() {
 	const [mapData, setMapData] = useState<MapData | undefined>(undefined);
 	const [sensorData, setSensorData] = useState<Sensor[] | undefined>(undefined);
 
@@ -26,8 +26,7 @@ export default function MapCanvas(props: { onUpdate: (Date: Date) => void }) {
 	const UpdateMap = () => {
 		fetch(new URL(import.meta.env.VITE_SENSOR_ENDPOINT, import.meta.env.VITE_BACKEND_URL), { method: 'GET' }) // Construct url
 			.then((res) => res.json())
-			.then((sensorData: Sensor[]) => setSensorData(sensorData)) // Update sensors on map
-			.then(() => props.onUpdate(new Date()));
+			.then((sensorData: Sensor[]) => setSensorData(sensorData)); // Update sensors on map
 	};
 
 	if (!mapData || !sensorData)

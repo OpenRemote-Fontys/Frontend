@@ -1,23 +1,22 @@
 import { useState, useEffect } from 'react';
 
-const FooterComponent = (props: { lastUpdate: Date }) => {
+export default function Footer() {
 	const [time, setTime] = useState<Date>(new Date());
+	const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
 	useEffect(() => {
-		const interval = setInterval(() => setTime(new Date()), 1000);
-		return () => {
-			clearInterval(interval);
-		};
-	});
+		setInterval(() => setTime(new Date()), 1000);
+		setInterval(() => setLastUpdate(new Date()), import.meta.env.VITE_MAP_UPDATE_INTERVAL as number);
+	}, []);
 
 	return (
 		<div className="w-full">
 			<hr className="mx-8 h-1 opacity-80" />
 			<div className="flex justify-between p-2 mb-2 ">
 				<div className="text-4xl">
-					Last update:{' '}
+					Last update:
 					<p className="font-thin">
-						{props.lastUpdate.toLocaleTimeString('nl-nl', {
+						{lastUpdate.toLocaleTimeString('nl-nl', {
 							hour: '2-digit',
 							minute: '2-digit',
 							second: undefined,
@@ -35,6 +34,4 @@ const FooterComponent = (props: { lastUpdate: Date }) => {
 			</div>
 		</div>
 	);
-};
-
-export default FooterComponent;
+}
