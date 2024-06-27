@@ -1,6 +1,7 @@
 import { Circle } from 'react-leaflet';
 import Sensor from '../types/Sensor.ts';
 import * as cc from 'color-convert';
+import { useState } from 'react';
 
 /**
  * HTML Props for SensorLayer
@@ -17,6 +18,8 @@ interface SensorLayerProps {
  * @constructor
  */
 export default function SensorLayer(props: Readonly<SensorLayerProps>) {
+	const [] = useState();
+
 	return (
 		<>
 			{props.data.map((sensor: Sensor) => {
@@ -24,11 +27,10 @@ export default function SensorLayer(props: Readonly<SensorLayerProps>) {
 					<Circle
 						key={sensor.id}
 						center={sensor.coordinates}
-						radius={(sensor.value - 0.2) * 7}
+						radius={6}
 						color={'#00000000'}
-						fillColor={
-							'#' + cc.hsv.hex([100 - (sensor.value > 1 ? 1 : sensor.value - 0.2 * 0.5) * 100, 100, 100])
-						}
+						pathOptions={{ fillColor: '#' + cc.hsv.hex([125 - sensor.value * 100, 100, 100]) }}
+						fillOpacity={0.5}
 					/>
 				);
 			})}
